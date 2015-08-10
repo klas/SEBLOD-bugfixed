@@ -1,22 +1,19 @@
-SEBLOD
-======
+# SEBLOD-bugfixed
+Bugfixed version of SEBLOD.
 
-SEBLOD is a Web Application Builder &amp; Content Construction Kit (CCK) for Joomla!
+All this fixes exist also as pull requests to the offical repository, we are only merging them a bit faster for those that need them now (mostly us, but might come handy to others too).
 
-Getting Started
-======
-- <a href="http://demo.seblod.com" target="_blank">Demo</a>
-- <a href="http://www.seblod.com" target="_blank">Download</a>
-- <a href="http://www.seblod.com/resources/manuals" target="_blank">Manuals</a>
-- <a href="http://www.seblod.com/resources/videos" target="_blank">Videos</a>
+Included fixes (not already in offical repo):
+* Disable email field with conditionals https://github.com/Octopoos/SEBLOD/pull/8
+* Fix caching on search&list https://github.com/Octopoos/SEBLOD/pull/30/
 
-Going Further
-======
-- <a href="http://www.seblod.com/community/forums" target="_blank">Forums</a>
-- <a href="http://www.seblod.com/products/vip" target="_blank">Memberships</a>
-- <a href="http://www.seblod.com/products" target="_blank">Marketplace</a>
-- <a href="http://www.seblod.com/enterprise/support" target="_blank">Support</a>
 
-Get Involved?
-======
-Anyone that want to help & get involved in the development of SEBLOD should use the "Dev" branch, and Pull Request only to the "Dev" branch. Any PR to the "Master" or "Next" branches will be closed.
+
+
+
+
+* Fix routing issues on redirect https://github.com/Octopoos/SEBLOD/pull/23
+* add missing parameters to search module when SEF is off https://github.com/Octopoos/SEBLOD/pull/20
+* Fix select dynamic custom attributes https://github.com/Octopoos/SEBLOD/pull/28
+* Fix for wrong author id due to multiple records with the same $pk https://github.com/Octopoos/SEBLOD/pull/18
+* Associations not working on form https://github.com/Octopoos/SEBLOD/pull/21
