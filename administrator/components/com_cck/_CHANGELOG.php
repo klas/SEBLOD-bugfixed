@@ -24,12 +24,29 @@ $ -> Language fix or change
 
 @ID is the ID on SEBLOD Tracker.
 
+-------------------- 3.7.1 Upgrade Release [17-Aug-2014] -------------
+
+! "Upgrade" process of Products improved >> SEBLOD Updater add-on required.
+! XML scripts (of each SEBLOD product) updated.
+
+! SQL Tables now backuped by default when uninstalling SEBLOD
+>> Backup or Drop behavior can be selected in "SEBLOD 3.x > Options > Component".
+
+! Post Install info updated.
+
++ "Item Identifier", "URL" params added on "Tabs" plug-in.
+
+^ <!-- Begin: SEBLOD 3.x Document --> only displayed when debug is enabled.
+^ <!-- End: SEBLOD 3.x Document --> only displayed when debug is enabled.
+
+# "onBeforeRender" Restrictions support added on Tabs plug-in.
+
 -------------------- 3.7.0 Upgrade Release [17-Jul-2015] -------------
 
 + Ability to create/link a new field to a specific Content Type... from Field Manager (or Search Type).
 + Ability to join the same table more than once added >> Search Join plug-in required.
 + Force Typography even if value is empty.
-+ Session Manager added >> "Edit" capabilities for sessions created from Exporter/Importer add-on.
++ Session Manager added >> "Edit" capabilities for sessions created from Exporter/Importer add-ons.
 
 + Export of Processings implemented.
 + Export of Storage (Format) plug-ins implemented.
@@ -50,7 +67,7 @@ $ -> Language fix or change
 ^ <form> ID suffixed on Form View when tmpl=component OR tmpl=raw.
 ^ JCckContent class updated >> "delete" method added and issues fixed.
 ^ Mobile Detect updated from 2.8.13 to 2.8.15.
-^ Various Core improvement for upcoming Builder App.
+^ Various Core improvements for upcoming Builder App.
 ^ Various Script/Styles improvemented when tmpl=raw.
 
 - Limit of characters removed in "Admin Menu" module.
