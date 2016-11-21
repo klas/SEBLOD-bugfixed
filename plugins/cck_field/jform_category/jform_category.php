@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -124,15 +124,12 @@ class plgCCK_FieldJForm_Category extends JCckPluginField
 				if ( $config['doTranslation'] ) {
 					$field->selectlabel	=	JText::_( 'COM_CCK_' . str_replace( ' ', '_', trim( $field->selectlabel ) ) );
 				}
-				$opt	=	'<option value="'.( ( $field->storage_field == 'parent_id' ) ? 1 : '' ).'">'.'- '.$field->selectlabel.' -'.'</option>';
-			}
-			if ( $config['client'] == 'search' ) {
-				$opt	.=	'<option value="">'.'- '.JText::_( 'COM_CCK_ALL_CATEGORIES' ).' -'.'</option>';
+				$opt	=	'<option value="'.( ( $field->storage_field == 'parent_id' && $config['client'] != 'search' ) ? 1 : '' ).'">'.'- '.$field->selectlabel.' -'.'</option>';
 			}
 			$multiple	=	( $field->bool3 == 1 ) ? 'multiple="multiple"' : '';
 			$size		=	( $field->rows ) ? $field->rows : 1;
 			$size		=	( (int)$size > 1 ) ? ' size="'.$size.'"' : '';
-			$extension	=	$app->input->getString( 'extension', @$options2['extension'] );
+			$extension	=	$app->input->get( 'extension', @$options2['extension'] );
 			$extension	=	( $extension ) ? $extension : 'com_content';
 			
 			$class	=	'inputbox select'.$validate . ( $field->css ? ' '.$field->css : '' );	

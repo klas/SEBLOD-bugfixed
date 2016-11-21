@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -96,13 +96,21 @@ class CCKViewForm extends JViewLegacy
 		jimport( 'cck.base.form.form' );
 		include JPATH_LIBRARIES_CCK.'/base/form/form_inc.php';
 		$unique	=	$preconfig['formId'].'_'.@$type->name;
+		
 		if ( isset( $config['id'] ) ) {
-			JFactory::getSession()->set( 'cck_hash_'.$unique, JApplication::getHash( $id.'|'.$type->name.'|'.$config['id'] ) );
+			JFactory::getSession()->set( 'cck_hash_'.$unique, JApplication::getHash( $id.'|'.$type->name.'|'.$config['id'].'|'.$config['copyfrom_id'] ) );
 		}
 		
 		// Set
 		if ( !is_object( @$options ) ) {
 			$options	=	new JRegistry;
+		}
+		if ( $params->get( 'display_form_title', '' ) == '1' ) {
+			$this->title				=	$params->get( 'title_form_title', '' );
+		} elseif ( $params->get( 'display_form_title', '' ) == '0' ) {
+			$this->title				=		$menu->title;
+		} else {
+			$this->title				=		@$type->title;
 		}
 		$this->show_form_title		=	$params->get( 'show_form_title' );
 		if ( $this->show_form_title == '' ) {
@@ -119,9 +127,17 @@ class CCKViewForm extends JViewLegacy
 			$this->description		=	@$type->description;
 		} elseif ( $this->show_form_desc ) {
 			$this->description		=	$params->get( 'form_desc', @$type->description );
+		} else {
+			$this->description		=	'';
 		}
 		if ( $this->description != '' ) {
 			$this->description		=	str_replace( '[note]', $menu->note, $this->description );
+		}
+
+		// Force Titles to be hidden
+		if ( $app->input->get( 'tmpl' ) == 'raw' ) {
+			$params->set( 'show_page_heading', 0 );
+			$this->show_form_title	=	false;
 		}
 		
 		$this->config				=	&$config;

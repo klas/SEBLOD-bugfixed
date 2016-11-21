@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -22,6 +22,8 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 	
 	protected static $access		=	'';
 	protected static $author		=	'';
+	protected static $author_object	=	'';
+	protected static $child_object	=	'';
 	protected static $created_at	=	'';
 	protected static $custom		=	'';
 	protected static $modified_at	=	'';
@@ -31,11 +33,14 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 	protected static $to_route		=	'';
 	
 	protected static $context		=	'';
+	protected static $context2		=	'';
 	protected static $contexts		=	array( 'com_content.article' );
 	protected static $error			=	false;
 	protected static $ordering		=	array( 'alpha'=>'title ASC' );
 	protected static $ordering2		=	array( 'newest'=>'created DESC', 'oldest'=>'created ASC', 'ordering'=>'ordering ASC', 'popular'=>'hits DESC' );
 	protected static $pk			=	0;
+	protected static $routes		=	array();
+	protected static $sef			=	array();
 	
 	// -------- -------- -------- -------- -------- -------- -------- -------- // Construct
 	
@@ -179,8 +184,8 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 		
 		// Init
 		$db		=	JFactory::getDbo();
+		$now	=	substr( JFactory::getDate()->toSql(), 0, -3 );
 		$null	=	$db->getNullDate();
-		$now	=	JFactory::getDate()->toSql();
 		
 		// Prepare
 		if ( !$this->params->get( 'bridge', 0 ) ) {
@@ -247,8 +252,8 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 		$canDelete		=	$user->authorise( 'core.delete', 'com_cck.form.'.$config['type_id'] );
 		$canDeleteOwn	=	$user->authorise( 'core.delete.own', 'com_cck.form.'.$config['type_id'] );
 		if ( ( !$canDelete && !$canDeleteOwn ) ||
-			 ( !$canDelete && $canDeleteOwn && $config['author'] != $user->get( 'id' ) ) ||
-			 ( $canDelete && !$canDeleteOwn && $config['author'] == $user->get( 'id' ) ) ) {
+			 ( !$canDelete && $canDeleteOwn && $config['author'] != $user->id ) ||
+			 ( $canDelete && !$canDeleteOwn && $config['author'] == $user->id ) ) {
 			$app->enqueueMessage( JText::_( 'COM_CCK_ERROR_DELETE_NOT_PERMITTED' ), 'error' );
 			return;
 		}
@@ -302,6 +307,8 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 		
 		// Check Error
 		if ( self::$error === true ) {
+			$config['error']	=	true;
+
 			return false;
 		}
 		
@@ -318,9 +325,12 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 		$dispatcher->trigger( 'onUserBeforeSaveGroup', array( self::$context, &$table, $isNew ) );
 		if ( !$table->store() ) {
 			JFactory::getApplication()->enqueueMessage( $table->getError(), 'error' );
+
 			if ( $isNew ) {
 				parent::g_onCCK_Storage_LocationRollback( $config['id'] );
 			}
+			$config['error']	=	true;
+			
 			return false;
 		}
 		$dispatcher->trigger( 'onUserAfterSaveGroup', array( self::$context, &$table, $isNew ) );
@@ -330,7 +340,7 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 			$config['pk']	=	self::$pk;
 		}
 		
-		$config['author']	=	JFactory::getUser()->get( 'id' );
+		$config['author']	=	JFactory::getUser()->id;
 		parent::g_onCCK_Storage_LocationStore( $data, self::$table, self::$pk, $config, $params );
 	}
 	
@@ -464,6 +474,8 @@ class plgCCK_Storage_LocationJoomla_User_Group extends JCckPluginLocation
 		static $autorized	=	array(
 									'access'=>'',
 									'author'=>'',
+									'author_object'=>'',
+									'child_object'=>'',
 									'created_at'=>'',
 									'context'=>'',
 									'contexts'=>'',

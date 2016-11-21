@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -44,7 +44,19 @@ class plgCCK_FieldTextarea extends JCckPluginField
 		}
 		$field->value	=	$value;
 	}
-	
+
+	// onCCK_FieldPrepareExport
+	public function onCCK_FieldPrepareExport( &$field, $value = '', &$config = array() )
+	{
+		if ( static::$type != $field->type ) {
+			return;
+		}
+		
+		self::onCCK_FieldPrepareContent( $field, $value, $config );
+		
+		$field->output	=	strip_tags( $field->value );
+	}
+
 	// onCCK_FieldPrepareForm
 	public function onCCK_FieldPrepareForm( &$field, $value = '', &$config = array(), $inherit = array(), $return = false )
 	{
@@ -77,21 +89,14 @@ class plgCCK_FieldTextarea extends JCckPluginField
 		$class	=	'inputbox textarea'.$validate . ( $field->css ? ' '.$field->css : '' );
 		$cols	=	( $field->cols ) ? $field->cols : 25;
 		$rows	=	( $field->rows ) ? $field->rows : 3;
-		$attr	=	'class="'.$class.'"';
+		$maxlen	=	( $field->maxlength > 0 ) ? ' maxlength="'.$field->maxlength.'"' : '';
+		$attr	=	'class="'.$class.'"'.$maxlen;
+
 		if ( $field->attributes != '' ) {
-			if ( strpos( $field->attributes, 'J(' ) !== false ) {
-				$matches	=	'';
-				$search		=	'#J\((.*)\)#U';
-				preg_match_all( $search, $field->attributes, $matches );
-				if ( count( $matches[1] ) ) {
-					foreach ( $matches[1] as $text ) {
-						$field->attributes	=	str_replace( 'J('.$text.')', JText::_( 'COM_CCK_' . str_replace( ' ', '_', trim( $text ) ) ), $field->attributes );
-					}
-				}
-			}
 			$attr	.=	' '.$field->attributes;
 		}
 		$form	= 	'<textarea id="'.$id.'" name="'.$name.'" cols="'.$cols.'" rows="'.$rows.'" '.$attr.'>'.$value.'</textarea>';
+		$form 	.=	( $field->bool4 ) ? self::_checkRemaingCharacters( $id, $field->maxlength ) : '';
 		
 		// Set
 		if ( ! $field->variation ) {
@@ -142,6 +147,9 @@ class plgCCK_FieldTextarea extends JCckPluginField
 			$value	=	JRequest::getVar( $name, '', 'post', 'string', JREQUEST_ALLOWRAW );
 		}
 		
+		// Make it safe
+		$value		=	JComponentHelper::filterText( $value );
+
 		// Validate
 		parent::g_onCCK_FieldPrepareStore_Validation( $field, $name, $value, $config );
 		
@@ -169,6 +177,24 @@ class plgCCK_FieldTextarea extends JCckPluginField
 	
 	// -------- -------- -------- -------- -------- -------- -------- -------- // Stuff & Script
 	
+	// _checkRemaingCharacters
+	protected static function _checkRemaingCharacters( $id, $length = 0 )
+	{
+		if ( !$length ) {
+			return '';
+		}
+
+		$js	=	'$("#'.$id.'").keyup(function() {
+					if ( $(this).attr("maxlength") != "undefinded" ) {
+							$("#chars-'.$id.' span").html($(this).attr("maxlength")-$(this).val().length);
+					}
+				}).trigger("keyup");';
+
+		JFactory::getDocument()->addScriptDeclaration( 'jQuery(document).ready(function($) {'.$js.'});' );
+		
+		return '<div id="chars-'.$id.'">'.JText::sprintf( 'COM_CCK_N_CHARACTERS_REMAINING', $length ).'</div>';
+	}
+
 	// _br2nl
 	protected static function _br2nl( $text )
 	{

@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -27,21 +27,35 @@ if ( $this->item->id == 'content_map' || $this->item->id == 'dev_map' ) {
 	} else {
 		$desc					=	JText::_( 'COM_CCK_SELECT_TO_MAP_EXISTING_COLUMN' );
 		$location				=	$this->item->title;
+		$pos					=	strpos( $location, 'aka_' );
 		$prefix					=	JFactory::getConfig()->get( 'dbprefix' );
-		if ( strpos( $location, '#__' ) !== false || strpos( $location, $prefix ) !== false ) {
-			$properties				=	array( 'table'=>str_replace( $prefix, '#__', $location ) );
+		
+		if ( $pos !== false && $pos == 0 ) {
+			$properties			=	array();
+		} elseif ( strpos( $location, '#__' ) !== false || strpos( $location, $prefix ) !== false ) {
+			$properties			=	array( 'table'=>str_replace( '#__', $prefix, $location ) );
 		} else {
 			$properties			=	array( 'table' );
 			if ( $location != '' ) {
 				require_once JPATH_SITE.'/plugins/cck_storage_location/'.$location.'/'.$location.'.php';
 				$properties		=	JCck::callFunc( 'plgCCK_Storage_Location'.$location, 'getStaticProperties', $properties );
+
+				if ( isset( $properties['table'] ) ) {
+					$properties['table']	=	str_replace( '#__', $prefix, $properties['table'] );
+				}
 			}
 		}
 		if ( isset( $properties['table'] ) && $properties['table'] != '' ) {
-			$columns			=	JCckDatabase::loadColumn( 'SHOW COLUMNS FROM '.$properties['table'] );
-			if ( count( $columns ) ) {
-				natsort( $columns );
-				$columns		=	array_combine( $columns, $columns );
+			$columns			=	array();
+			$tables				=	JCckDatabase::getTableList( true );
+			
+			if ( isset( $tables[$properties['table']] ) ) {
+				$columns		=	JCckDatabase::loadColumn( 'SHOW COLUMNS FROM '.$properties['table'] );
+
+				if ( count( $columns ) ) {
+					natsort( $columns );
+					$columns		=	array_combine( $columns, $columns );
+				}
 			}
 			$columns			=	array_merge( array( ''=>'- '.JText::_( 'COM_CCK_SELECT' ).' -' ), $columns );
 		} else {
@@ -70,9 +84,10 @@ if ( $this->item->id == 'content_map' || $this->item->id == 'dev_map' ) {
 		$form					=	JCckDevField::getForm( $field, '', $config );
 	}
 }
-
-$toggle						=	0;
+$alterMatch					=	0;
 $separator					=	'';
+$toggle						=	0;
+
 if ( $this->item->title == 'search' ) {
 	$isConvertible	=	JCck::callFunc( 'plgCCK_Field'.$field->type, 'isConvertible' );
 	if ( $isConvertible == 1 ) {
@@ -83,6 +98,7 @@ if ( $this->item->title == 'search' ) {
 		} else {
 			$separator	=	',';
 		}
+		$alterMatch	=	1;
 	} else {
 		$separator	=	( $field->divider != '' ) ? $field->divider : ',';
 	}
@@ -95,6 +111,9 @@ if ( $this->item->title == 'search' ) {
 			$toggle		=	0;
 		}
 	}
+}
+if ( $alterMatch ) {
+	$matchForm	=	JCckDev::getForm( 'core_dev_select', '', $config, array( 'selectlabel'=>'', 'options'=>'Keep Match Unchanged=0||Update Match Mode=1', 'storage_field'=>'alter_match', 'attributes'=>'disabled="disabled"' ) );
 }
 
 // Set
@@ -109,15 +128,15 @@ $js		=	'
 					}
 					return "";
 				}
-				$.fn.toggleMultiple = function() {
+				$.fn.toggleMultiple = function(offset) {
 					if (this.is("select")) {
 						if (this.prop("multiple")) {
-							this.prepend(\'<option value="">- '.JText::_( 'COM_CCK_SELECT' ).' -</option>\').prop("multiple",false).attr("size",1);
+							this.prepend(\'<option value="">- '.JText::_( 'COM_CCK_SELECT' ).' -</option>\').prop("multiple",false).removeAttr("size");
 						} else {
 							$("#"+this.attr("id")+" option:eq(0)").remove();
 							this.prop("multiple",true).attr("size",15);
 						}
-						JCck.Dev.resize();
+						JCck.Dev.resize(offset);
 					} else if (this.is("fieldset")) {
 						if (this.hasClass("checkbox") || this.hasClass("checkboxes")) {
 							var reg = new RegExp(\'type="checkbox"\',"g");
@@ -138,14 +157,18 @@ $js		=	'
 					return "";
 				}
 				JCck.Dev = {
+					always:false,
 					reset: function() {
 						var elem = "#'.$this->item->name.'";
 						var elem2 = "#'.$this->item->type.'";
 						parent.jQuery(elem2).val("");
 						this.close();
 					},
-					resize: function() {
-						var h = $("#layout").height()+61;
+					resize: function(offset) {
+						var h = $("#layout").height()+44;
+						if (offset) {
+							h += offset;
+						}
 						parent.jQuery.colorbox.resize({innerHeight:h});
 					},
 					submit: function() {
@@ -163,6 +186,26 @@ $js		=	'
 							if (client=="search") {
 								var v = $(elem).myVal()+"";
 								v = v.replace(/,/g, glue);
+
+								if ($("#alter_match_div").length && !$("#alter_match_div").hasClass("hidden-important") && $("#alter_match").val()) {
+									var $el = parent.jQuery("#'.$this->item->name.'_match_mode");
+									var $el2 = parent.jQuery("span[data-id=\''.$this->item->name.'_match_mode\']");
+									var match_mode = $el.val();
+									var isMultiple = ($(elem).isMultiple() && v.indexOf(",") !== -1);
+									if(isMultiple) {
+										if (match_mode=="exact"){
+											$el.val("any_exact"); $el2.html(Joomla.JText._("COM_CCK_MATCH_ANY_WORDS_EXACT"));
+										} else if (match_mode=="") {
+											$el.val("any"); $el2.html(Joomla.JText._("COM_CCK_MATCH_ANY_WORDS"));
+										}
+									} else {
+										if (match_mode=="any_exact"){
+											$el.val("exact"); $el2.html(Joomla.JText._("COM_CCK_MATCH_EXACT_PHRASE"));
+										} else if (match_mode=="any") {
+											$el.val(""); $el2.html(Joomla.JText._("COM_CCK_MATCH_DEFAULT_PHRASE"));
+										}
+									}
+								}
 							} else {
 								var v = $(elem).myVal();
 							}
@@ -176,6 +219,32 @@ $js		=	'
 						}
 						this.close();
 						return;
+					},
+					toggleField: function() {
+						var $el = parent.jQuery("#'.$this->item->name.'_match_mode");
+						var match_mode = $el.val();
+						var match_value = parent.jQuery("#'.$this->item->name.'_match_value").val();
+						glue = (match_value!="") ? match_value : "'.$separator.'";
+						var v = $("#'.$this->item->name.'").myVal()+"";
+						v = v.replace(/,/g, glue);
+						/*
+						if ($("#'.$this->item->name.'").isMultiple() && $("#alter_match_div").length && $("#alter_match_div").hasClass("hidden-important")) {
+							$("#alter_match_div").toggleClass("hidden-important");
+						}
+						*/
+						if ($("#'.$this->item->name.'").isMultiple() && v.indexOf(",") !== -1) {
+							if (match_mode=="exact" || match_mode==""){
+								$("#alter_match").prop("disabled",false).val("1");
+							} else {
+								$("#alter_match").prop("disabled",true).val("0");
+							}
+						} else {
+							if (match_mode=="any_exact" || match_mode=="any"){
+								$("#alter_match").prop("disabled",false).val("1");
+							} else {
+								$("#alter_match").prop("disabled",true).val("0");
+							}
+						}
 					}
     			}
 				$(document).ready(function(){
@@ -185,7 +254,7 @@ $js		=	'
 					var fieldtype = "'.$field->type.'";
 					var elem = "#'.$this->item->name.'";
 					var w = $("#toolbarBox").width()+69;
-					var h = $("#layout").height()+80;
+					var h = $("#layout").height()+62;
 					if (w > 300 || h > 200) {
 						w = (w > 300) ? w+20 : w;
 						parent.jQuery.colorbox.resize({innerWidth:w, innerHeight:h});
@@ -205,29 +274,52 @@ $js		=	'
 							var reg = new RegExp(glue,"g");
 							v = v.replace(reg, ",");
 							if (!$(elem).isMultiple() && v.split(",").length > 1) {
-								$(elem).toggleMultiple();
+								$("#alter_match_div").toggleClass("hidden-important");
+								$(elem).toggleMultiple(18);
 							}
 						} else {
 							var v = parent.jQuery(elem2).val();
 						}
-						$(elem).myVal(v);
+						if (v != "") {
+							$(elem).myVal(v);
+						}
 					} else {
 						$("div.preview ul").attr("id", "'.$this->item->name.'");
-						$(elem+" input").val(parent.jQuery(elem2).val().split(","));
+						var v2 = parent.jQuery(elem2).val().split(",");
+						$(elem+" input").val(v2);
 					}
 					if (toggle=="1") {
 						$("div.toggle-selection").html(\'<a href="#" id="toggle_selection">Toggle</a>\');
-						$("#toggle_selection").live("click", function() {
-							$(elem).toggleMultiple();
+						if ($("#'.$this->item->name.'").isMultiple()) {
+							JCck.Dev.always = true;
+						}
+						$("#toggle_selection").on("click", function() {
+							if (client=="search" && $("#alter_match_div").length && !JCck.Dev.always) {
+								$("#alter_match_div").toggleClass("hidden-important");
+							}
+							$(elem).toggleMultiple(0);
+							if (client=="search" && $("#alter_match_div").length) {
+								JCck.Dev.toggleField();
+							}
 						});
+						if (client=="search") {
+							$(elem).on("change", function() {
+								JCck.Dev.toggleField();
+							});
+						}
 					}
 				});
 			})(jQuery);
 			';
 Helper_Include::addDependencies( 'box', 'edit' );
-$doc->addStyleSheet( JURI::root( true ).'/media/cck/css/cck.admin.css' );
-$doc->addStyleDeclaration( 'div.cck_forms.cck_admin div.cck_form {float:none;}table.DynarchCalendar-topCont{top:0px!important;left:16px!important;}' );
+$doc->addStyleSheet( JUri::root( true ).'/media/cck/css/cck.admin.css' );
+$doc->addStyleDeclaration( 'div.cck_forms.cck_admin div.cck_form {float:none;}table.DynarchCalendar-topCont{top:0px!important;left:16px!important;} form{margin:0!important;}' );
 $doc->addScriptDeclaration( $js );
+
+JText::script( 'COM_CCK_MATCH_ANY_WORDS' );
+JText::script( 'COM_CCK_MATCH_ANY_WORDS_EXACT' );
+JText::script( 'COM_CCK_MATCH_DEFAULT_PHRASE' );
+JText::script( 'COM_CCK_MATCH_EXACT_PHRASE' );
 ?>
 
 <div class="seblod preview">
@@ -241,6 +333,11 @@ $doc->addScriptDeclaration( $js );
 			<div class="cck_form cck_form_<?php echo $field->type; ?>">
 				<?php echo $form; ?>
 			</div>
+			<?php if ( $alterMatch ) { ?>
+				<div id="alter_match_div" class="hidden-important">
+					<?php echo $matchForm; ?>
+				</div>
+			<?php } ?>
 		</div>
 	</div>
     <!--<div align="center" style="text-align:center;">

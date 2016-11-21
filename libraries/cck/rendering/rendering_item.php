@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -105,7 +105,7 @@ class CCK_Item
 			$this->css	=	'';
 		}
 		if ( $this->js != '' ) {
-			$doc->addScriptDeclaration( '(function ($){'.$js."\n".'$(document).ready(function(){'.$this->js.'});})(jQuery);' );
+			$doc->addScriptDeclaration( '(function ($){$(document).ready(function(){'.$this->js.'});})(jQuery);' );
 			$this->js	=	'';
 		}
 		if ( $this->js2 != '' ) {
@@ -224,6 +224,18 @@ class CCK_Item
 		return $html;
 	}
 	
+	// retrieveValue
+	public function retrieveValue( $fieldname )
+	{
+		$field	=	$this->get( $fieldname );
+		
+		if ( !$field->display ) {
+			return '';
+		}
+		
+		return $field->value;
+	}
+	
 	// -------- -------- -------- -------- -------- -------- -------- -------- // Positions
 
 	// getPosition
@@ -307,9 +319,9 @@ class CCK_Item
 			}
 			if ( $css == 1 || $css == 2 ) {
 				if ( $this->isFile( $this->path.'/css/list.css' ) ) {
-					JFactory::getDocument()->addStyleSheet( JURI::root( true ).'/templates/'.$this->name.'/css/list.css' );
+					JFactory::getDocument()->addStyleSheet( JUri::root( true ).'/templates/'.$this->name.'/css/list.css' );
 				} else {
-					JFactory::getDocument()->addStyleSheet( JURI::root( true ).'/media/cck/css/cck.list.css' );
+					JFactory::getDocument()->addStyleSheet( JUri::root( true ).'/media/cck/css/cck.list.css' );
 				}
 			}
 			$cache[$this->type]	=	'';
@@ -434,13 +446,14 @@ class CCK_Item
 		if ( $attr != '' ) {
 			if ( $attr != '' && strpos( $attr, '$cck' ) !== false ) {
 				$matches	=	'';
-				$search		=	'#\$cck\->get([a-zA-Z0-9_]*)\( ?\'([a-zA-Z0-9_,]*)\' ?\)(;)?#';
+				$search		=	'#\$cck\->(get|retrieve)([a-zA-Z0-9_]*)\( ?\'([a-zA-Z0-9_,]*)\' ?\)(;)?#';
 				preg_match_all( $search, $attr, $matches );
 
-				if ( count( $matches[1] ) ) {
-					foreach ( $matches[2] as $k=>$fieldname ) {
-						$target		=	$matches[1][$k];
-						$get		=	'get'.$target;
+				if ( count( $matches[2] ) ) {
+					foreach ( $matches[3] as $k=>$fieldname ) {
+						$target		=	$matches[2][$k];
+						$method		=	( $matches[1][$k] == 'retrieve' ) ? $matches[1][$k] : 'get';
+						$get		=	$method.$target;
 						$replace	=	$this->$get( $fieldname );
 						$attr		=	str_replace( $matches[0][$k], $replace, $attr );
 					}

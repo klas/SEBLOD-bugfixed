@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -45,6 +45,7 @@ Helper_Include::addDependencies( $this->getName(), $this->getLayout() );
 <div>
     <input type="hidden" id="task" name="task" value="" />
     <input type="hidden" id="myid" name="id" value="<?php echo @$this->item->id; ?>" />
+    <input type="hidden" name="extension" value="<?php echo $this->item->extension; ?>" />
     <?php
     echo JHtml::_( 'form.token' );
 	?>

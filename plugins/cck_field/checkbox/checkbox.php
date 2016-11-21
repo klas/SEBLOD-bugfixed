@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -175,13 +175,9 @@ class plgCCK_FieldCheckbox extends JCckPluginField
 		} else {
 			$orientation	=	'';
 		}
-		if ( JCck::on() ) {
-			$attr	=	'class="checkbox'.$validate.'" size="1"';
-		} else {
-			$attr	=	'class="inputbox checkbox'.$validate.'" size="1"';
-		}
-		
+		$attr	=	'class="checkbox'.$validate.'" size="1"';
 		$attr_key	=	'data-cck';
+
 		if ( $field->bool && $field->bool2 > 1 && $count > 1 ) {
 			$k	=	0;
 			foreach ( $opts as $i=>$o ) {
@@ -266,6 +262,15 @@ class plgCCK_FieldCheckbox extends JCckPluginField
 			parent::g_getDisplayVariation( $field, $field->variation, $value, $field->text, $form, $id, $name, '<input', '', '', $config );
 		}
 		$field->value	=	$value;
+
+		$texts						=	( isset( $field->text ) ) ? explode( $divider, $field->text ) : array();
+		$values						=	( is_string( $field->value ) ) ? explode( $divider, $field->value ) : $field->value;
+		if ( count( $values ) ) {
+			$field->values			=	array();
+			foreach ( $values as $k=>$v ) {
+				$field->values[$k]	=	(object)array( 'text'=>@$texts[$k], 'value'=>$v );
+			}
+		}
 		
 		// Return
 		if ( $return === true ) {
@@ -351,7 +356,7 @@ class plgCCK_FieldCheckbox extends JCckPluginField
 	
 	// onCCK_FieldRenderForm
 	public static function onCCK_FieldRenderForm( $field, &$config = array() )
-	{		
+	{
 		return parent::g_onCCK_FieldRenderForm( $field );
 	}
 	

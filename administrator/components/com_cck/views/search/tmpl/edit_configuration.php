@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -12,13 +12,15 @@ defined( '_JEXEC' ) or die;
 
 $options	=	JCckDev::fromJSON( $this->item->options );
 ?>
-
 <div class="<?php echo $this->css['wrapper']; ?>">
 	<div class="seblod">
         <div class="legend top left"><?php echo JText::_( 'COM_CCK_CONFIG' ). '<span class="mini">('.JText::_( 'COM_CCK_FOR_VIEW_ALL' ).')</span>'; ?></div>
         <ul class="adminformlist adminformlist-2cols">
             <?php
-			echo JCckDev::renderForm( $cck['core_limit'], @$options['limit'], $config );
+            echo '<li><label>'.JText::_( 'COM_CCK_LIMIT' ).' / '.JText::_( 'COM_CCK_COUNT' ).'</label>'
+             .   JCckDev::getForm( $cck['core_limit'], @$options['limit'], $config )
+             .   JCckDev::getForm( 'core_dev_select', @$options['count'], $config, array( 'defaultvalue'=>'0', 'selectlabel'=>'', 'options'=>'Auto=0||Estimate=1', 'storage_field'=>'options[count]' ) )
+             .   '</li>';
             echo '<li><label>'.JText::_( 'COM_CCK_CACHE_SEARCH' ).'</label>'
              .   JCckDev::getForm( $cck['core_cache'], @$options['cache'], $config )
              .   JCckDev::getForm( 'core_dev_select', @$options['cache_per_user'], $config, array( 'defaultvalue'=>'0', 'selectlabel'=>'', 'options'=>'For Anyone=0||Per User=1', 'storage_field'=>'options[cache_per_user]' )  )
@@ -85,5 +87,36 @@ $options	=	JCckDev::fromJSON( $this->item->options );
             ?>
         </ul>
 	</div>
+    <div class="seblod">
+        <div class="legend top left"><?php echo '&rArr; ' . JText::_( 'COM_CCK_CONFIG_NO_SEARCH' ); ?></div>
+        <ul class="adminformlist adminformlist-2cols">
+            <?php
+            echo JCckDev::renderBlank();
+            echo JCckDev::renderForm( 'core_action', @$options['action_no_search'], $config, array( 'storage_field'=>'options[action_no_search]' ) );
+            ?>
+        </ul>
+    </div>
+    <div class="seblod">
+        <div class="legend top left"><?php echo '&rArr; ' . JText::_( 'COM_CCK_RESOURCE_AS_FRAGMENT' ); ?></div>
+        <ul class="adminformlist adminformlist-2cols">
+            <?php
+            echo JCckDev::renderForm( 'core_bool', @$options['load_resource'], $config, array( 'defaultvalue'=>'0', 'label'=>'Enable Loading', 'storage_field'=>'options[load_resource]' ) );
+            echo JCckDev::renderBlank( '<input type="hidden" id="blank_li7" value="" />' );
+            echo JCckDev::renderForm( 'core_dev_select', @$options['tmpl_resource'], $config, array( 'defaultvalue'=>'', 'label'=>'Tmpl', 'selectlabel'=>'None', 'options'=>'Component=component||Raw=raw', 'storage_field'=>'options[tmpl_resource]' ) );
+            echo JCckDev::renderForm( 'core_dev_textarea', @$options['json_resource'], $config, array( 'label'=>'Parameters', 'cols'=>80, 'rows'=>1, 'storage_field'=>'options[json_resource]' ), array(), 'w100' );
+            ?>
+        </ul>
+    </div>
+    <div class="seblod">
+        <div class="legend top left"><?php echo '&rArr; ' . JText::_( 'COM_CCK_CONFIG_VALIDATION' ); ?></div>
+        <ul class="adminformlist adminformlist-2cols">
+            <?php
+            echo JCckDev::renderForm( $cck['core_validation_position'], @$options['validation_position'], $config );
+            echo JCckDev::renderForm( $cck['core_validation_scroll'], @$options['validation_scroll'], $config );
+            echo JCckDev::renderForm( $cck['core_validation_color'], @$options['validation_color'], $config );
+            echo JCckDev::renderForm( $cck['core_validation_background_color'], @$options['validation_background_color'], $config );
+            ?>
+        </ul>
+    </div>
 </div>
 <div class="clr"></div>

@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -31,7 +31,12 @@ defined( '_JEXEC' ) or die;
 </div>
 
 <script type="text/javascript">
-jQuery(document).ready(function($) {
-	$('#options_key_fieldname').isVisibleWhen('options_key','-1');
-});
+(function ($){
+	JCck.Dev.applyConditionalStates = function() {
+		$('#options_key_fieldname').isVisibleWhen('options_key','-1');
+	}
+	$(document).ready(function() {
+		JCck.Dev.applyConditionalStates();
+	});
+})(jQuery);
 </script>

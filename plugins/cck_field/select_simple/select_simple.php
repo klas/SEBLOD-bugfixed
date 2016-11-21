@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -35,14 +35,25 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 	}
 	
 	// onCCK_FieldConstruct_SearchSearch
-	public static function onCCK_FieldConstruct_SearchSearch( &$field, $style, $data = array() )
+	public static function onCCK_FieldConstruct_SearchSearch( &$field, $style, $data = array(), &$config = array() )
 	{
-		$data['variation'][]	=	JHtml::_( 'select.option', '<OPTGROUP>', JText::_( 'COM_CCK_LIST' ) );
-		$data['variation'][]	=	JHtml::_( 'select.option', 'list', JText::_( 'COM_CCK_DEFAULT' ) );
-		$data['variation'][]	=	JHtml::_( 'select.option', 'list_filter', JText::_( 'COM_CCK_FORM_FILTER' ) );
-		$data['variation'][]	=	JHtml::_( 'select.option', '</OPTGROUP>', '' );
+		if ( !isset( $config['construction']['variation'][self::$type] ) ) {
+			$data['variation']['201']			=	JHtml::_( 'select.option', '<OPTGROUP>', JText::_( 'COM_CCK_LIST' ) );
+			$data['variation']['list']			=	JHtml::_( 'select.option', 'list', JText::_( 'COM_CCK_DEFAULT' ) );
+			$data['variation']['list_filter']	=	JHtml::_( 'select.option', 'list_filter', JText::_( 'COM_CCK_FORM_FILTER' ) );
+			/*
+			$data['variation']['list_filter_ajax']	=	JHtml::_( 'select.option', 'list_filter_ajax', JText::_( 'COM_CCK_FORM_FILTER_AJAX' ) );
+			*/
+			$data['variation']['202']			=	JHtml::_( 'select.option', '</OPTGROUP>', '' );
+			$data['variation']['203']			=	JHtml::_( 'select.option', '<OPTGROUP>', JText::_( 'COM_CCK_STAR_IS_SECURED' ) );
+			$data['variation']['204']			=	JHtml::_( 'select.option', '</OPTGROUP>', '' );
+
+			$config['construction']['variation'][self::$type]	=	$data['variation'];
+		} else {
+			$data['variation']									=	$config['construction']['variation'][self::$type];
+		}
 		
-		parent::onCCK_FieldConstruct_SearchSearch( $field, $style, $data );
+		parent::onCCK_FieldConstruct_SearchSearch( $field, $style, $data, $config );
 	}
 	
 	// -------- -------- -------- -------- -------- -------- -------- -------- // Prepare
@@ -130,7 +141,9 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 		} else {
 			$optionsSorted	=	$options;
 		}
-		$opts	=	array();
+		$attributes	=	array();
+		$opts		=	array();
+		$options	=	array();
 		if ( trim( $field->selectlabel ) ) {
 			if ( $config['doTranslation'] ) {
 				$field->selectlabel	=	JText::_( 'COM_CCK_' . str_replace( ' ', '_', trim( $field->selectlabel ) ) );
@@ -140,10 +153,12 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 				foreach ( $attribs as $k=>$a ) {
 					$attr['attr']	.=	' '.$a.'=""';
 				}
-				$opts[]	=	JHtml::_( 'select.option',  '', '- '.$field->selectlabel.' -', $attr );
+				$attributes[]	=	$attr['attr'];
+				$opts[]			=	JHtml::_( 'select.option',  '', '- '.$field->selectlabel.' -', $attr );
 			} else {
-				$opts[]	=	JHtml::_( 'select.option',  '', '- '.$field->selectlabel.' -', 'value', 'text' );
+				$opts[]			=	JHtml::_( 'select.option',  '', '- '.$field->selectlabel.' -', 'value', 'text' );
 			}
+			$options[]			=	$field->selectlabel.'=';
 		}
 		$optgroup	=	0;
 		
@@ -174,10 +189,12 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 									foreach ( $attribs as $k=>$a ) {
 										$attr['attr']	.=	' '.$a.'="'.$options2->options[$i]->attr[$k].'"';
 									}
+									$attributes[]	=	$attr['attr'];
 									$opts[]			=	JHtml::_( 'select.option', $opt[1], $opt[0], $attr );
 								} else {
 									$opts[]			=	JHtml::_( 'select.option', $opt[1], $opt[0], 'value', 'text' );
 								}
+								$options[]			=	$opt[0].'='.$opt[1];
 							}
 						} else {
 							if ( $val == 'endgroup' && $optgroup == 1 ) {
@@ -193,10 +210,12 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 									foreach ( $attribs as $k=>$a ) {
 										$attr['attr']	.=	' '.$a.'="'.$options2->options[$i]->attr[$k].'"';
 									}
+									$attributes[]	=	$attr['attr'];
 									$opts[]			=	JHtml::_( 'select.option', $val, $text, $attr );
 								} else {
 									$opts[]			=	JHtml::_( 'select.option', $val, $text, 'value', 'text' );
 								}
+								$options[]			=	$text.'='.$val;
 							}
 						}
 					}
@@ -233,10 +252,12 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 								foreach ( $attribs as $k=>$a ) {
 									$attr['attr']	.=	' '.$a.'="'.$options2->options[$i]->attr[$k].'"';
 								}
+								$attributes[]	=	$attr['attr'];
 								$opts[]			=	JHtml::_( 'select.option', $o->value, $o->text, $attr );
 							} else {
 								$opts[]			=	JHtml::_( 'select.option', $o->value, $o->text, 'value', 'text' );
 							}
+							$options[]			=	$o->text.'='.$o->val;
 						}
 					}
 				}
@@ -273,6 +294,8 @@ class plgCCK_FieldSelect_Simple extends JCckPluginField
 			if ( $config['doTranslation'] ) {
 				$config['doTranslation']=	$field->bool8;
 			}
+			$field->attributesList		=	( count( $attributes ) ) ? implode( '||', $attributes ) : '';
+			$field->optionsList			=	( count( $options ) ) ? implode( '||', $options ) : '';
 			$field->text				=	parent::g_getOptionText( $value, $field->options, '', $config );
 			$config['doTranslation']	=	$doTranslation;
 			parent::g_getDisplayVariation( $field, $field->variation, $value, $field->text, $form, $id, $name, '<select', '', '', $config );

@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -32,13 +32,13 @@ class JCckPluginTypo extends JPlugin
 	// g_getPath
 	public static function g_getPath( $type = '' )
 	{
-		return JURI::root( true ).'/plugins/'.self::$construction.'/'.$type;
+		return JUri::root( true ).'/plugins/'.self::$construction.'/'.$type;
 	}
 	
 	// g_hasLink
 	public static function g_hasLink( &$field, $typo, $value, &$config = array() )
 	{
-		if ( $field->link != '' ) {
+		if ( isset( $field->link ) && $field->link != '' ) {
 			$applyLink		=	( isset( $field->link_state ) ) ? $field->link_state : 1;
 
 			if ( $applyLink && strpos( $value, '<a href' ) === false ) {

@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -35,7 +35,7 @@ Joomla.submitbutton = function(task, cid)
 			return false;
 		}
 	}
-	jQuery("#adminForm").append('<input type="hidden" id="return" name="return" value="<?php echo base64_encode( JFactory::getURI() ); ?>">');
+	jQuery("#<?php echo $this->form_id; ?>").append('<input type="hidden" id="return" name="return" value="<?php echo base64_encode( JUri::getInstance()->toString() ); ?>">');
 	JCck.Core.submitForm(task);
 }
 </script>
@@ -46,7 +46,7 @@ if ( $this->show_list_desc == 1 && $this->description != '' ) {
 }
 
 echo ( $this->config['action'] ) ? $this->config['action'] : '<form action="'.JRoute::_( 'index.php?option='.$this->option.'&view='.$this->getName() ).'" autocomplete="off" method="get" id="'.$this->config['formId'].'" name="'.$this->config['formId'].'">';
-echo '<div class="seblod first">' . $this->form . '</div>';
+echo '<div class="seblod first container-fluid">' . $this->form . '</div>';
 ?>
 
 <div class="cck_page_list<?php echo $this->pageclass_sfx; ?>" id="system">
@@ -67,16 +67,23 @@ echo '<div class="seblod first">' . $this->form . '</div>';
 				$label	=	JText::_( 'COM_CCK_' . str_replace( ' ', '_', trim( $label ) ) );
 			}
 			$item_number	=	'<div class="'.$this->class_items_number.'"><span>'.$this->total.'</span>&nbsp;'.$label.'</div>';
-		}	
-	    echo '<div class="seblod '.$this->class_pagination.'">';
-		if ( $this->show_pagination > -1 ) {
-			if ( JCck::on() ) {
-				echo str_replace( '<div class="pagination pagination-toolbar">', '<div class="pagination pagination-toolbar">'.$item_number, $this->pagination->getListFooter() );
-			} else {
-				echo str_replace( '<div class="container">', '<div class="container">'.$item_number, $this->pagination->getListFooter() );
-			}
 		}
-	    echo '</div>';
+		if ( isset( $this->pagination->pagesTotal ) ) {
+			$pages_total	=	$this->pagination->pagesTotal;
+		} elseif ( isset( $this->pagination->{'pages.total'} ) ) {
+			$pages_total	=	$this->pagination->{'pages.total'};
+		} else {
+			$pages_total	=	0;
+		}
+		if ( $this->show_pagination > -1 && $pages_total > 1 ) {
+			echo '<div class="seblod '.$this->class_pagination.'">';
+
+			$pages	=	str_replace( 'document.adminForm.limitstart', 'document.'.$this->config['formId'].'.limitstart', $this->pagination->getListFooter() );
+			$pages	=	str_replace( 'Joomla.submitform()', 'Joomla.submitform(\'\',document.getElementById(\''.$this->config['formId'].'\'))', $pages );
+			
+			echo str_replace( '<div class="pagination pagination-toolbar">', '<div class="pagination pagination-toolbar">'.$item_number, $pages );
+			echo '</div>';
+		}
 	}
     ?>
 </div>

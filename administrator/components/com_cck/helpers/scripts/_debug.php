@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -22,7 +22,7 @@ $profiler	=	new JProfiler();
 $js			=	'';
 $js2		=	'';
 $js_script	=	'';
-$js_script	=	JURI::root( true ).$js_script;
+$js_script	=	JUri::root( true ).$js_script;
 echo '<br /><div style="color: #999999; font-size: 10px; font-weight: bold;">-------- Debug --------<br />';
 // -------- -------- -------- -------- -------- -------- -------- -------- //
 

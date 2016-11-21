@@ -4,36 +4,14 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
 defined( '_JEXEC' ) or die;
 
-if ( JCck::on() ) {
-	// TableAdapter
-	class CCK_TableTypeAdapter extends JTable
-	{
-		// _getAssetParentId
-		protected function _getAssetParentId( JTable $table = null, $id = null )
-		{
-			return $this->_getAssetParentId2( $table, $id );
-		}
-	}
-} else {
-	// TableAdapter
-	class CCK_TableTypeAdapter extends JTable
-	{
-		// _getAssetParentId
-		protected function _getAssetParentId( $table = null, $id = null )
-		{
-			return $this->_getAssetParentId2( $table, $id );
-		}
-	}
-}
-
 // Table
-class CCK_TableType extends CCK_TableTypeAdapter
+class CCK_TableType extends JTable
 {
 	// __construct
 	function __construct( &$db )
@@ -46,6 +24,12 @@ class CCK_TableType extends CCK_TableTypeAdapter
 	{
 		$k	=	$this->_tbl_key;
 		return 'com_cck.form.'.(int)$this->$k;
+	}
+
+	// _getAssetParentId
+	protected function _getAssetParentId( JTable $table = null, $id = null )
+	{
+		return $this->_getAssetParentId2( $table, $id );
 	}
 
 	// _getAssetTitle
@@ -93,13 +77,13 @@ class CCK_TableType extends CCK_TableTypeAdapter
 
 		if ( $this->id ) {
 			$this->modified_date		=	$date->toSql();
-			$this->modified_user_id		=	$user->get( 'id' );
+			$this->modified_user_id		=	$user->id;
 		} else {
 			if ( !(int)$this->created_date ) {
 				$this->created_date		=	$date->toSql();
 			}
 			if ( empty( $this->created_user_id ) ) {
-				$this->created_user_id	=	$user->get( 'id' );
+				$this->created_user_id	=	$user->id;
 			}
 		}
 

@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -25,7 +25,7 @@ class plgCCK_Field_TypoImage extends JCckPluginTypo
 		if ( self::$type != $field->typo ) {
 			return;
 		}
-		self::$path	=	JURI::root().'plugins/cck_field_typo/'.self::$type.'/';
+		self::$path	=	JUri::root().'plugins/cck_field_typo/'.self::$type.'/';
 		
 		// Prepare
 		if ( $field->value && $field->value != '' ) {
@@ -42,6 +42,8 @@ class plgCCK_Field_TypoImage extends JCckPluginTypo
 		// Prepare
 		$options		=	array(
 								'base'=>JUri::root( true ).'/',
+								'attributes'=>$typo->get( 'attributes', '' ),
+								'class'=>$typo->get( 'class', '' ),
 								'root'=>( $typo->get( 'path_type', 0 ) ? JUri::root() : '' )
 							);
 		$thumb_array	=	array( 'thumb'=>$typo->get( 'thumb', 'thumb1' ),
@@ -75,7 +77,7 @@ class plgCCK_Field_TypoImage extends JCckPluginTypo
 	// onCCK_Field_TypoBeforeRenderContent
 	public static function onCCK_Field_TypoBeforeRenderContent( $process, &$fields, &$storages, &$config = array() )
 	{
-		if ( $fields[$process['alt_fieldname']] ) {
+		if ( @$fields[$process['alt_fieldname']] ) {
 			if ( is_array( $fields[$process['name']]->value ) ) {
 				foreach ( $fields[$process['name']]->value as $k=>$field ) {
 					if ( isset( $field->image_alt ) && $field->image_alt ) {
@@ -118,8 +120,10 @@ class plgCCK_Field_TypoImage extends JCckPluginTypo
 		$image_alt			=	( isset( $field->image_alt ) ) ? $field->image_alt : '';
 		$field->image_alt	=	( $image_alt != '' ) ? $image_alt : $image_title;
 		$field->image_title	=	( $params['image_title'] && $field->image_title ) ? $field->image_title : '';
-		$attr_title			=	( $field->image_title ) ? 'title="'.$field->image_title.'" ' : '';
+		$title				=	( $field->image_title ) ? 'title="'.$field->image_title.'" ' : '';
 
+		$attr				=	( $options['attributes'] != '' ) ? ' '.$options['attributes'] : '';
+		$class				=	( $options['class'] != '' ) ? ' class="'.$options['class'].'"' : '';
 		$height				=	'';
 		$srcset				=	'';
 		$width				=	'';
@@ -134,7 +138,7 @@ class plgCCK_Field_TypoImage extends JCckPluginTypo
 			}
 			$srcset	=	' srcset="'.$srcset.'"';
 		}
-		$img		=	'<img '.$attr_title.'alt="'.$field->image_alt.'" src="'.self::_availableThumb( $field, $params['thumb'], $options ).'"'.$srcset.$width.$height.' />';
+		$img		=	'<img '.$title.'alt="'.$field->image_alt.'" src="'.self::_availableThumb( $field, $params['thumb'], $options ).'"'.$srcset.$class.$attr.$width.$height.' />';
 
 		if ( isset( $field->link ) && $field->link ) {
 			$typo	=	parent::g_hasLink( $field, new stdClass, $img );

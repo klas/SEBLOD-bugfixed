@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -20,10 +20,9 @@ class CommonHelper_Include
 		$script	=	( $tmpl == 'ajax' ) ? false : true;
 		
 		if ( $script !== false ) {
-			if ( JCck::on() ) {
-				JHtml::_( 'behavior.framework', false );
-				JHtml::_( 'bootstrap.tooltip' );
-			}
+			JHtml::_( 'bootstrap.framework' );
+			JHtml::_( 'bootstrap.tooltip' );
+			
 			JCck::loadjQuery( true, true, true );
 		}
 		Helper_Include::addStyleSheets( true );
@@ -48,7 +47,7 @@ class CommonHelper_Include
 		
 		$doc->addStyleDeclaration( 'div.pagetitle {display: block!important;}' );
 		if ( $component ) {
-			$doc->addStyleDeclaration( 'div.seblod {margin: 0px 10px 10px 10px!important;} div.seblod.first {margin-top: 10px!important;}' );
+			$doc->addStyleDeclaration( 'div.seblod {margin: 0px 10px 10px 10px!important;}' );
 			JHtml::_( 'stylesheet', 'administrator/components/'.CCK_COM.'/assets/css/admin.css', array(), false );
 			JHtml::_( 'stylesheet', 'administrator/components/'.CCK_COM.'/assets/css/font.css', array(), false );
 		}
@@ -66,25 +65,6 @@ class CommonHelper_Include
 	
 	// -------- -------- -------- -------- -------- -------- -------- -------- //
 	
-	// addLavalamp
-	public static function addLavalamp( $elem, $js = '' )
-	{
-		if ( JCck::on() ) {
-			return;
-		}
-		$doc	=	JFactory::getDocument();
-		
-		$doc->addStyleSheet( JROOT_MEDIA_CCK.'/scripts/jquery-lavalamp/css/lavalamp.css' );
-		$doc->addScript( JROOT_MEDIA_CCK.'/scripts/jquery-lavalamp/js/jquery.easing.min.js' );
-		$doc->addScript( JROOT_MEDIA_CCK.'/scripts/jquery-lavalamp/js/jquery.lavalamp.min.js' );
-		
-		if ( $js != '' ) {
-			$js	.=	' ';
-		}
-		$js		=	'jQuery(document).ready(function($){ '.$js.'$("'.$elem.'").lavaLamp({ fx: "easeOutBack", speed: 888, }); });';
-		$doc->addScriptDeclaration( $js );
-	}
-	
 	// addSmoothScrool
 	public static function addSmoothScrool( $time = 1000 )
 	{
@@ -97,22 +77,6 @@ class CommonHelper_Include
 	// addTooltip
 	public static function addTooltip( $elem = '', $pos_my = 'top left', $pos_at = 'bottom right', $classes = '', $script = true, $tmpl = '' )
 	{
-		if ( !JCck::on() ) {
-			$doc	=	JFactory::getDocument();
-			
-			if ( $script === true ) {
-				$doc->addStyleSheet( JROOT_MEDIA_CCK.'/scripts/jquery-qtip/css/jquery.qtip.css' );
-				$doc->addScript( JROOT_MEDIA_CCK.'/scripts/jquery-qtip/js/jquery.qtip.min.js' );
-			}
-			if ( $elem ) {
-				$js	=	'jQuery(document).ready(function($){ $("'.$elem.'").qtip({ style: {classes: "'.$classes.'"}, position: {my: "'.$pos_my.'", at: "'.$pos_at.'"} }); });';
-				if ( $tmpl == 'ajax' ) {
-					echo '<script type="text/javascript">'.$js.'</script>';
-				} else {
-					$doc->addScriptDeclaration( $js );
-				}
-			}
-		}
 	}
 	
 	// addValidation
@@ -154,8 +118,8 @@ class CommonHelper_Include
 			$options	=	'{}';
 		}
 		
-		$doc->addStyleSheet( JURI::root( true ).'/media/cck/css/cck.validation-3.6.0.css' );
-		$doc->addScript( JURI::root( true ).'/media/cck/js/cck.validation-3.5.0.min.js' );
+		$doc->addStyleSheet( JUri::root( true ).'/media/cck/css/cck.validation-3.9.0.css' );
+		$doc->addScript( JUri::root( true ).'/media/cck/js/cck.validation-3.9.0.min.js' );
 		
 		$js	=	'jQuery(document).ready(function($){ $.validationEngineLanguage.newLang({'.$rules.'}); $("#'.$id.'").validationEngine('.$options.'); });';
 		$doc->addScriptDeclaration( $js );

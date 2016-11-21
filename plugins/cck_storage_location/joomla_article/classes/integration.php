@@ -4,7 +4,7 @@
 * @package			SEBLOD (App Builder & CCK) // SEBLOD nano (Form Builder)
 * @url				http://www.seblod.com
 * @editor			Octopoos - www.octopoos.com
-* @copyright		Copyright (C) 2013 SEBLOD. All Rights Reserved.
+* @copyright		Copyright (C) 2009 - 2016 SEBLOD. All Rights Reserved.
 * @license 			GNU General Public License version 2 or later; see _LICENSE.php
 **/
 
@@ -58,7 +58,7 @@ class plgCCK_Storage_LocationJoomla_Article_Integration extends plgCCK_Storage_L
 			$tag					=	'';
 		}
 		
-		$class					=	JCck::on( '3.4' ) ? ' class="hasTooltip"' : '';
+		$class					=	( JCck::on( '3.4' ) && $uri['view'] != 'featured' ) ? ' class="hasTooltip"' : '';
 		$data['doIntegration']	=	false;
 		$data['multilanguage']	=	$data['options']->get( 'multilanguage', 0 );
 		if ( $data['multilanguage'] ) {
